@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>The realism and correctness of generated images</title>
+</head>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js">
+</script>
+<link rel="stylesheet" href="//cdnjs.loli.net/ajax/libs/mdui/0.4.3/css/mdui.min.css">
+<script src="//cdnjs.loli.net/ajax/libs/mdui/0.4.3/js/mdui.min.js"></script>
+<body class="mdui-color-theme">
+<h1>
+    The realism and correctness of generated images
+</h1>
+<h4>
+    <br>We are conducting an academic survey about the realism and correctness of our computer-generated images. We will provide you with 500 pairs of images. For each pair, please judge which image is more realistic (has less checkerboard, less strange stripes and blocks on people's face) (On the whole, the people's face as well as the background are more like real photos) as well as which image is more corresponding to the given label(the hair color and the gender).
+    <br>As for hair color, an image with better hair color has more natural color on people's hair in corresponding "hair" regions. As for gender, you should not judge it by the length of hair, although in our daily life women tend to have longer hair than men.
+    <br>Some pairs of our images may have two women with short hair or two men with long hair. It doesn't matter. You need to judge gender by whether the person has moustache, eye-shadow and lipstick. A person with more moustache is more "male". A person with more eye-shadow or more lipstick is more "female".
+    <br>After your submission, you will receive a code to paste into the box below to receive credit for taking our survey.
+</h4>
+<!--<h1 th:text="${newWorld}">Hello World</h1>-->
+<div class="mdui-container">
+    <table class="mdui-table">
+        <tr th:each="questions,quesStat:${questionList}">
+            <td th:text="${quesStat.index}"></td>
+            <td>
+                <img th:src="${questions.imageName}"/>
+            </td>
+            <td>
+                <img th:src="${questions.imageName2}"/>
+            </td>
+            <td>
+                <b>Which image do you think is more realistic</b>
+                <br>
+                <input type="radio" th:name="${questions.imageName}" value="1">
+                <label>The left one </label>
+                <br>
+                <input type="radio" th:name="${questions.imageName}" value="2">
+                <label>The right one</label>
+                <br>
+                <input type="radio" th:name="${questions.imageName}" value="3">
+                <label>Nearly the same </label>
+                <br>
+                <b th:text="${questions.name}"></b>
+                <br>
+                <input type="radio" th:name="${questions.imageName2}" value="1">
+                <label>The left one </label>
+                <br>
+                <input type="radio" th:name="${questions.imageName2}" value="2">
+                <label>The right one</label>
+                <br>
+                <input type="radio" th:name="${questions.imageName2}" value="3">
+                <label>Nearly the same </label>
+            </td>
+
+        </tr>
+    </table>
+</div>
+<div class="mdui-container">
+    <div class="mdui-textfield">
+        <label class="mdui-textfield-label">User Name</label>
+        <input class="mdui-textfield-input" type="text" id="id-filed"/>
+    </div>
+</div>
+<div class="mdui-container" style="padding-top: 10px">
+    <button class="mdui-btn mdui-color-theme-accent mdui-ripple mdui-color-blue-300" id="dialog">submit</button>
+</div>
+
+</body>
+<script>
+    // var getIPAddress = function() {
+    //     $.getJSON('https://ipapi.co/json/', function(data) {
+    //         return(data.ip);
+    //     });
+    // };
+    mdui.JQ('#dialog').on('click', function () {
+
+        var checkInputs = document.querySelectorAll('input:checked')
+        var radios = $("input[type='radio']");
+        var unanser = [];
+        for (var j = 0; j < radios.length; j = j + 6) {
+
+            if (!(radios[j].checked || radios[j + 1].checked || radios[j + 2].checked)
+                || !(radios[j + 3].checked || radios[j + 4].checked || radios[j + 5].checked)) {
+                unanser.push(j / 6);
+            }
+        }
+        var message = undefined;
+        var username = $("#id-filed").val();
+        if (username === "") {
+            message = "Please enter your name";
+        }
+        if (unanser.length > 0) {
+            message = "Please check Question ";
+            for (var i in unanser) {
+                message = message + unanser[i] + " ";
+            }
+        }
+        if (message === undefined) {
+            var code = 100000+Math.round(Math.random()*10000);
+            mdui.dialog({
+                title: 'Submit success',
+                content: 'Your survey was sent successfully. The survey code is'+ code,
+                buttons: [
+                    {
+                        text: 'OK'
+                    }
+                ]
+            });
+            var sum = [];
+            for (var i = 0; i < checkInputs.length; i++) {
+                var v = checkInputs[i].value;
+                sum.push(v);
+            }
+            sum.push(username);
+            sum.push(code);
+            var url = '/postdata';
+            var data = {"data": sum};
+            $.post(url, data);
+        } else {
+            mdui.dialog({
+                title: 'Submit Fail',
+                content: message,
+                buttons: [
+                    {
+                        text: 'OK'
+                    }
+                ]
+            });
+        }
+    });
+
+</script>
+</html>
